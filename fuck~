@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+size=$(echo "-depth 16 -endian LSB -size 840x840")
+echo $size
+convert "$size" gray:tmp*.dat -normalize png:-|display

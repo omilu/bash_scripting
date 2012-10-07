@@ -1,0 +1,2 @@
+convert -endian LSB -depth 16 -size 1680x5683 gray:rawA.dat -crop 840x840 gray:fucked%d.dat
+convert -depth 16 -endian LSB -size 840x840 gray:fucked0A.dat -normalize png:-|display

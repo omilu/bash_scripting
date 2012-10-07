@@ -7,9 +7,9 @@ mkdir cropped/shit
 ls cropped -lah|sed '/^d/d'|
 	awk '{print $9 }' |
 	sed '/^$/d'|
-	sed 's/A.png//'| 
-	sed 's/B.png//'| 
-	sed 's/Fire.png//'|uniq>LIST.tmp
+	sed 's/A.dat//'| 
+	sed 's/B.dat//'| 
+	sed 's/Fire.dat//'|uniq>LIST.tmp
 #create a list of file names called LIST.tmp
 exec 6<LIST.tmp
 cat LIST.tmp
@@ -17,24 +17,32 @@ i=1
 while read -u 6;
 do
 	echo "processing" $REPLY
-	baz=$(wc cropped/"$REPLY"A.png|
+	baz=$(wc cropped/"$REPLY"A.dat|
 	awk '{print $3}')
+	echo $baz
 	baz=$(expr $baz / $ROWSIZE) #baz = number of rows
+	baz=$(expr $baz / 2)
 	baz=$(echo "-depth 16 -endian LSB -size "$ROWSIZE"x"$baz"")
+	echo "$baz"
 	if [ $i -eq 1 ]; then
 	#convert "$baz" "$REPLY".png -contrast-stretch 5%x2% shit/"$REPLY"done.png;
-	convert cropped/"$REPLY"B.png \
+	echo "convert "$baz" gray:cropped/"$REPLY"B.dat \
 		-normalize \
-		tmp"$REPLY"B.png
-	convert cropped/"$REPLY"A.png \
+		gray:tmp"$REPLY"B.dat"
+	#convert -depth 16 -endian LSB -size 840x840 \
+	#	gray:cropped/"$REPLY"B.dat \
+	convert $baz gray:cropped/"$REPLY"B.dat \
+		-normalize gray:tmp"$REPLY"B.dat
+	echo "done with pre"
+	convert $baz gray:cropped/"$REPLY"A.dat \
 	-contrast-stretch 5%x2% \
-	cropped/"$REPLY"B.png \
+	gray:cropped/"$REPLY"B.dat \
 	-contrast-stretch 5%x2% \
-	tmp"$REPLY"B.png \
+	gray:tmp"$REPLY"B.dat \
 	-channel red,green,blue \
 	-combine\
-	cropped/shit/"$REPLY"doneA.png;
-	rm tmp"$REPLY"B.png
+	cropped/shit/"$REPLY"doneA.png
+	#rm tmp"$REPLY"B.dat;
 	fi
 	i=$(expr $i + 1)
 
