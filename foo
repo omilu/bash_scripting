@@ -1,0 +1,1 @@
+ls cropped|awk '{print }'| sed 's/A.png//'| sed 's/B.png//'| sed 's/Fire.png//'|uniq

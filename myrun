@@ -1,0 +1,73 @@
+#!/usr/bin/bash
+
+ROWSIZE=$(expr 1680 + 0)
+ROWSIZE=$(expr $ROWSIZE / 2) #comment if image not a cropped image
+rm -r cropped/shit
+mkdir cropped/shit
+ls cropped -lah|sed '/^d/d'|
+	awk '{print $9 }' |
+	sed '/^$/d'|
+	sed 's/A.png//'| 
+	sed 's/B.png//'| 
+	sed 's/Fire.png//'|uniq>LIST.tmp
+#create a list of file names called LIST.tmp
+exec 6<LIST.tmp
+cat LIST.tmp
+i=1
+while read -u 6;
+do
+	echo "processing" $REPLY
+	baz=$(wc cropped/"$REPLY"A.png|
+	awk '{print $3}')
+	baz=$(expr $baz / $ROWSIZE) #baz = number of rows
+	baz=$(echo "-depth 16 -endian LSB -size "$ROWSIZE"x"$baz"")
+	#if [ $i -eq 1 ]; then
+	#convert "$baz" "$REPLY".png -contrast-stretch 5%x2% shit/"$REPLY"done.png;
+	convert cropped/"$REPLY"B.png \
+		-normalize \
+		tmp"$REPLY"B.png
+	convert cropped/"$REPLY"A.png \
+	-contrast-stretch 5%x2% \
+	cropped/"$REPLY"B.png \
+	-contrast-stretch 5%x2% \
+	tmp"$REPLY"B.png \
+	-channel red,green,blue \
+	-combine\
+	cropped/shit/"$REPLY"doneA.png;
+	rm tmp"$REPLY"B.png
+	#fi
+	i=$(expr $i + 1)
+
+	echo "$baz";
+
+	
+	
+done
+
+
+
+exec 6<&-	
+
+
+: <<'END'
+echo 
+echo "compiling"
+gcc stretch.c
+echo 
+echo "running stretcher"
+./a.exe rawA.dat rawB.dat rawFire.dat
+echo
+echo "making A image"
+convert -depth 16 -endian LSB -size 1680x5683 gray:outA.dat outA.png
+echo
+echo "making B image"
+convert -depth 16 -endian LSB -size 1680x5683 gray:outB.dat outB.png
+echo "making intense B mask"
+convert -depth 16 -endian LSB -size 1680x5683 gray:rawB.dat -threshold 400 -negate intenseBmask.png
+convert -depth 16 -endian LSB -size 1680x5683 gray:rawB.dat -clip-mask intenseBmask.png -normalize intenseB.png
+echo
+echo "making false color"
+convert outA.png outB.png intenseB.png -channel red,green,blue -combine false.png
+#convert outB.png intenseB.png -channel green,blue -background black -combine false.png
+echo "done with everything"
+END
