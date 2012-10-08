@@ -1,0 +1,10 @@
+Exception: STATUS_ACCESS_VIOLATION at eip=00401EFD
+eax=0029BD80 ebx=00000000 ecx=80000037 edx=00000001 esi=61273718 edi=611A1EDF
+ebp=0024C328 esp=0024C300 program=C:\cygwin\home\tr\mydocs\infrared\image_processing\bash_scripting\ir\datfiles\stretch.exe, pid 5356, thread main
+cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
+Stack trace:
+Frame     Function  Args
+0024C328  00401EFD  (0028ABC4, 0025BD84, 0024C360, 0024C35C)
+0028AC58  00401A20  (00000004, 0028AC80, 80010100, 611A1EF6)
+0028ACF8  61007535  (00000000, 0028CD78, 61006B20, 00000000)
+End of stack trace

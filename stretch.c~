@@ -21,7 +21,7 @@
 #define		BUFF_SIZE	16
 #define		DSP_RANGE	16000
 #define 	SIGMA_A		.020
-#define		OFFSET_A	-450//-15//bigger makes it darker
+#define		OFFSET_A	-150//-15//bigger makes it darker
 #define		MASKED_SIGMA_A	.025
 #define		MASKED_OFFSET_A	 -127
 #define		MASKED_SIGMA_B	4	

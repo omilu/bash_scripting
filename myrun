@@ -6,6 +6,8 @@
 #called shit
 #The image files must be binary depth 16 endian LSB
 
+gcc stretch.c -o stretch
+
 ROWSIZE=$(expr 1680 + 0)  #Must set the ROWSIZE here
 ROWSIZE=$(expr $ROWSIZE / 2) #comment if image not a cropped image
 
@@ -27,6 +29,10 @@ i=1
 while read -u 6;	#process the list of files
 do
 	echo "processing" $REPLY
+	./stretch.exe cropped/"$REPLY"A.dat \
+	       	cropped/"$REPLY"B.dat \
+		cropped/"$REPLY"Fire.dat
+	echo "done with homegrowns"
 	baz=$(wc cropped/"$REPLY"A.dat|
 	awk '{print $3}')
 	echo $baz
@@ -43,11 +49,9 @@ do
 	#	gray:cropped/"$REPLY"B.dat \
 	convert $baz gray:cropped/"$REPLY"B.dat \
 		-normalize gray:tmp"$REPLY"B.dat
-	echo "done with pre"
-	convert $baz gray:cropped/"$REPLY"A.dat \
-	-contrast-stretch 5%x2% \
-	gray:cropped/"$REPLY"B.dat \
-	-contrast-stretch 5%x2% \
+	echo "generated intense B mask"
+	convert $baz gray:outA.dat \
+	gray:outB.dat \
 	gray:tmp"$REPLY"B.dat \
 	-channel red,green,blue \
 	-combine\
@@ -61,7 +65,7 @@ do
 	
 	
 done
-
+rm outA.dat outB.dat
 
 
 exec 6<&-	

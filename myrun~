@@ -1,27 +1,42 @@
 #!/usr/bin/bash
 
-ROWSIZE=$(expr 1680 + 0)
+#This script processes image files in a directory called cropped.
+#It creates a false color .png of the A and B data 
+#and puts it in a new directory
+#called shit
+#The image files must be binary depth 16 endian LSB
+
+gcc stretch.c -o stretch
+
+ROWSIZE=$(expr 1680 + 0)  #Must set the ROWSIZE here
 ROWSIZE=$(expr $ROWSIZE / 2) #comment if image not a cropped image
-rm -r cropped/shit
+
+#make the directory to hold the output pngs
+rm -r cropped/shit			
 mkdir cropped/shit
+
+#create a list of uniq file names to process
 ls cropped -lah|sed '/^d/d'|
 	awk '{print $9 }' |
 	sed '/^$/d'|
 	sed 's/A.dat//'| 
 	sed 's/B.dat//'| 
 	sed 's/Fire.dat//'|uniq>LIST.tmp
-#create a list of file names called LIST.tmp
-exec 6<LIST.tmp
+
+exec 6<LIST.tmp #make file descriptor for reading file names
 cat LIST.tmp
 i=1
-while read -u 6;
+while read -u 6;	#process the list of files
 do
 	echo "processing" $REPLY
+	./stretch.exe "$REPLY"A.dat "$REPLY"B.dat \
+		"$REPLY"Fire.dat
+	echo "done with homegrowns"
 	baz=$(wc cropped/"$REPLY"A.dat|
 	awk '{print $3}')
 	echo $baz
-	baz=$(expr $baz / $ROWSIZE) #baz = number of rows
-	baz=$(expr $baz / 2)
+	baz=$(expr $baz / $ROWSIZE) 
+	baz=$(expr $baz / 2) #baz = the number rows
 	baz=$(echo "-depth 16 -endian LSB -size "$ROWSIZE"x"$baz"")
 	echo "$baz"
 	#if [ $i -eq 1 ]; then
@@ -33,11 +48,9 @@ do
 	#	gray:cropped/"$REPLY"B.dat \
 	convert $baz gray:cropped/"$REPLY"B.dat \
 		-normalize gray:tmp"$REPLY"B.dat
-	echo "done with pre"
-	convert $baz gray:cropped/"$REPLY"A.dat \
-	-contrast-stretch 5%x2% \
-	gray:cropped/"$REPLY"B.dat \
-	-contrast-stretch 5%x2% \
+	echo "generated intense B mask"
+	convert $baz gray:outA.dat \
+	gray:outB.dat \
 	gray:tmp"$REPLY"B.dat \
 	-channel red,green,blue \
 	-combine\
@@ -51,7 +64,7 @@ do
 	
 	
 done
-
+rm outA.dat outB.dat
 
 
 exec 6<&-	
